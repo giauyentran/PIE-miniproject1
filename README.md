@@ -1,4 +1,4 @@
-# PIE Mini-Priject 1: Build Your Own Bike Light
+# PIE Mini-Project 1: Build Your Own Bike Light
 
 ## Part 1
 In this mini-project you and your partner will build a bike light.  Your goal is to set up LEDs such that pressing a button will switch the system of lights between several different modes: all off, all flashing; all on; and “bouncing” lights (for example).  Your system should demonstrate a minimum of five modes and use at least three LEDs.

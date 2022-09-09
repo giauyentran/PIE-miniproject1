@@ -9,8 +9,13 @@ const uint8_t blue = 10;               // LED is connected to D13
 const uint8_t green = 11;
 const uint8_t yellow = 12;
 const uint8_t red = 13;
+int button = 8;
 int i = 0;
-int state = 4;
+int state = 0;
+
+int button_state = 0;
+int previous_state = 0;
+int button_count = 0;
 
 uint32_t blink_time;                  // Global variable to store the time that LED last changed state
 
@@ -21,39 +26,41 @@ void setup() {
   pinMode(green, OUTPUT);
   pinMode(yellow, OUTPUT);
   pinMode(red, OUTPUT);
+  pinMode(button, INPUT);
   
   digitalWrite(blue, LOW);            // Set LED low initially
   digitalWrite(green, LOW); 
   digitalWrite(yellow, LOW); 
   digitalWrite(red, LOW); 
-  
+
   blink_time = millis();              // Remember the current value of the millis timer
 }
 
 void loop() {
-  Serial.print(state); // for debugging
 
-  //TODO: change state based when button pushed
+  button_state = digitalRead(button);
   
-  if (state == 0){
+  if (button_state != previous_state) {
+    if (button_state == HIGH) {
+      button_count++;
+      state = button_count % 5;
+    } 
+  }
+  
+  previous_state = button_state;
+
+  if (state == 0) {
     all_off();
+    } else if (state == 1) {
+      all_on();
+    } else if (state == 2) {
+      all_blinking();
+    } else if (state == 3) {
+      bouncing();
+    } else if (state == 4) {
+      binary();
     }
-
-  if (state == 1){
-    all_on();
-    }
-
-  if (state == 2){
-    all_blinking();
-    }
-
-  if (state == 3){
-    bouncing();
-    }
-  
-  if (state == 4){
-    binary();
-     }
+ 
 }
 
 // FUNCTIONS

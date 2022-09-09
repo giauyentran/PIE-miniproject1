@@ -49,7 +49,7 @@ void loop() {
   }
   
   previous_state = button_state;
-
+  
   if (state == 0) {
     all_off();
     } else if (state == 1) {
@@ -61,7 +61,8 @@ void loop() {
     } else if (state == 4) {
       binary();
     }
- 
+    
+ delay(50);
 }
 
 // FUNCTIONS

@@ -12,7 +12,7 @@ const uint8_t red = 13;
 int button = 8;
 int i = 0;
 int state = 0;
-
+int counter = 0;
 int button_state = 0;
 int previous_state = 0;
 int button_count = 0;
@@ -44,6 +44,7 @@ void loop() {
     if (button_state == HIGH) {
       button_count++;
       state = button_count % 5;
+      Serial.print(state);
     } 
   }
   
@@ -96,27 +97,27 @@ void all_blinking() { // from Brad's tutorial. may want to refactor
 
 
 void bouncing() {
-  
-  int speed = 250;
-  
-  digitalWrite(red, HIGH);
-  delay(speed);
-  digitalWrite(red, LOW);
-  digitalWrite(yellow, HIGH);
-  delay(speed);
-  digitalWrite(yellow, LOW);
-  digitalWrite(green, HIGH);
-  delay(speed);
-  digitalWrite(green, LOW);
-  digitalWrite(blue, HIGH);
-  delay(speed);
-  digitalWrite(blue, LOW);
-  digitalWrite(green, HIGH);
-  delay(speed);
-  digitalWrite(green, LOW);
-  digitalWrite(yellow, HIGH);
-  delay(speed);
-  digitalWrite(yellow, LOW);
+
+    if (counter == 0) {
+      digitalWrite(red, HIGH);
+      delay(250);
+      digitalWrite(red, LOW);
+    } else if (counter == 1 || counter == 5){
+      digitalWrite(yellow, HIGH);
+      delay(250);
+      digitalWrite(yellow, LOW);
+    } else if (counter == 2 || counter == 4) {
+      digitalWrite(green, HIGH);
+      delay(250);
+      digitalWrite(green, LOW);
+    } else if (counter == 3) {
+      digitalWrite(blue, HIGH);
+      delay(250);
+      digitalWrite(blue, LOW);
+    } 
+    
+  counter++;
+  counter = counter % 6;
 }
 
 

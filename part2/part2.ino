@@ -18,6 +18,7 @@ int counter = 0;
 int button_state = 0;
 int previous_state = 0;
 int button_count = 0;
+int ledstate = 0;
 
 uint32_t blink_time;                  // Global variable to store the time that LED last changed state
 
@@ -44,7 +45,9 @@ void loop() {
   // TO DO:
   // Find a better way to intialize brightness once rather than all the times in the different functions
   // Control LEDs with brightness in bouncing
-
+  int potValue = analogRead(pot);
+  int brightness = map(potValue, 0, 1023, 0, 255);
+  
   button_state = digitalRead(button);
   
   if (button_state != previous_state) {
@@ -91,20 +94,35 @@ void all_off() {
 }
 
 
-void all_blinking() { // from Brad's tutorial. may want to refactor
+void all_blinking() {
 
   int potValue = analogRead(pot);
-  int brightness = map(potValue, 0, 1023, 0, 255);
+  int brightness = map(potValue, 0, 1023, 1, 255); 
+ 
   uint32_t t;                         
 
-  t = millis();                       
+  t = millis();                      
   if (t >= blink_time + BLINK_INTERVAL) { // If BLINK_INTERVAL milliseconds have elapsed since blink_time,
-    digitalWrite(blue, !digitalRead(blue));
-    digitalWrite(green, !digitalRead(green));
-    digitalWrite(yellow, !digitalRead(yellow));
-    digitalWrite(red, !digitalRead(red));
+    if (ledstate == 1) {
+      ledstate = 0;
+    } else {
+      ledstate = 1;
+    }
+
+    if (ledstate == 1) {
+      analogWrite(red, brightness);
+      analogWrite(yellow, brightness);
+      analogWrite(green, brightness);
+      analogWrite(blue, brightness);
+    } else {
+      analogWrite(red, 0);
+      analogWrite(yellow, 0);
+      analogWrite(green, 0);
+      analogWrite(blue, 0);
+    }
     blink_time = t;            
   }
+ 
 }
 
 

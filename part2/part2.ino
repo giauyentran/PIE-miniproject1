@@ -130,26 +130,38 @@ void bouncing() {
 
   int potValue = analogRead(pot);
   int brightness = map(potValue, 0, 1023, 0, 255);
+  int32_t t;                         
+
+  t = millis();   
+    if (t >= blink_time + BLINK_INTERVAL) { // If BLINK_INTERVAL milliseconds have elapsed since blink_time,
+    counter++;
+    counter = counter % 6;
+    
     if (counter == 0) {
       analogWrite(red, brightness);
-      delay(250);
-      digitalWrite(red, LOW);
+      analogWrite(yellow, 0);
+      analogWrite(green, 0);
+      analogWrite(blue, 0);
     } else if (counter == 1 || counter == 5){
+      analogWrite(red, 0);
       analogWrite(yellow, brightness);
-      delay(250);
-      digitalWrite(yellow, LOW);
+      analogWrite(green, 0);
+      analogWrite(blue, 0);
     } else if (counter == 2 || counter == 4) {
+      analogWrite(red, 0);
+      analogWrite(yellow, 0);
       analogWrite(green, brightness);
-      delay(250);
-      digitalWrite(green, LOW);
+      analogWrite(blue, 0);
     } else if (counter == 3) {
+      analogWrite(red, 0);
+      analogWrite(yellow, 0);
+      analogWrite(green, 0);
       analogWrite(blue, brightness);
-      delay(250);
-      digitalWrite(blue, LOW);
     } 
     
-  counter++;
-  counter = counter % 6;
+    blink_time = t;
+    Serial.println(counter);
+    }
 }
 
 
@@ -159,9 +171,11 @@ void binary(){
   int potValue = analogRead(pot);
   int brightness = map(potValue, 0, 1023, 0, 255);
   all_off();
-  delay(speed);
-  
-  if (i <= 15){
+  int32_t t;  
+
+  t = millis();   
+    if (t >= blink_time + speed) { // If BLINK_INTERVAL milliseconds have elapsed since blink_time,
+       if (i <= 15){
     i++; //We start the counter:
     if((i % 2) > 0) { analogWrite(red, brightness); 
       } else { digitalWrite(red, LOW); }
@@ -174,6 +188,7 @@ void binary(){
     } else {
         i = 0;
     }
-    
-  delay(speed);
+    blink_time = t;
+    }
+
 }

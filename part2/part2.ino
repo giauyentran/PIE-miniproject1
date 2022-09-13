@@ -4,105 +4,115 @@
  * 
  */
 
-const uint16_t BLINK_INTERVAL = 500;  // Time interval between toggling LED in milliseconds
-const uint8_t blue = 10;               // LED is connected to D13
-const uint8_t green = 11;
-const uint8_t yellow = 5;
-const uint8_t red = 6;
-const uint8_t pot = A1;
 
-int button = 8;
-int i = 0;
-int state = 0;
+// Connect components to pins
+const int RED_LED = 6;
+const int YELLOW_LED = 5;
+const int GREEN_LED = 11;
+const int BLUE_LED = 10;  
+const int POT = A1;
+const int BUTTON = 8;
+
+// intialize counting variables
+int mode = 0;
 int counter = 0;
 int button_state = 0;
-int previous_state = 0;
+int previous_button = 0;
 int button_count = 0;
 int ledstate = 0;
 
-uint32_t blink_time;                  // Global variable to store the time that LED last changed state
+// Global variable to store the time that LED last changed state
+uint32_t blink_time;
 
-void setup() {
-  Serial.begin(9600); // for testing purposes
-  
-  pinMode(blue, OUTPUT);               // Configure LED pin as a digital output
-  pinMode(green, OUTPUT);
-  pinMode(yellow, OUTPUT);
-  pinMode(red, OUTPUT);
-  pinMode(button, INPUT);
-  pinMode(pot, INPUT);
-  
-  digitalWrite(blue, LOW);            // Set LED low initially
-  digitalWrite(green, LOW); 
-  digitalWrite(yellow, LOW); 
-  digitalWrite(red, LOW); 
 
-  blink_time = millis();              // Remember the current value of the millis timer
+void setup() {  
+  
+  pinMode(BLUE_LED, OUTPUT);
+  pinMode(GREEN_LED, OUTPUT);
+  pinMode(YELLOW_LED, OUTPUT);
+  pinMode(RED_LED, OUTPUT);
+  pinMode(BUTTON, INPUT);
+  pinMode(POT, INPUT);
+
+  // Turn LEDs off initially
+  digitalWrite(BLUE_LED, LOW);
+  digitalWrite(GREEN_LED, LOW); 
+  digitalWrite(YELLOW_LED, LOW); 
+  digitalWrite(RED_LED, LOW); 
+
+  // Remember the current value of the millis timer
+  blink_time = millis();
 }
+
 
 void loop() {
 
-  // TO DO:
-  // Find a better way to intialize brightness once rather than all the times in the different functions
-  // Control LEDs with brightness in bouncing
-  int potValue = analogRead(pot);
-  int brightness = map(potValue, 0, 1023, 0, 255);
+  // Map potentiometer reading to LED brightness
+  int POTValue = analogRead(POT);
+  int brightness = map(POTValue, 0, 1023, 0, 255);
   
-  button_state = digitalRead(button);
+  // Change mode when button is pressed
+  button_state = digitalRead(BUTTON);
   
-  if (button_state != previous_state) {
+  if (button_state != previous_button) {
     if (button_state == HIGH) {
       button_count++;
-      state = button_count % 5;
-      Serial.print(state);
+      mode = button_count % 5;
     } 
-  }
+  } 
+  previous_button = button_state;
   
-  previous_state = button_state;
-  
-  if (state == 0) {
-    all_off();
-    } else if (state == 1) {
-      all_on();
-    } else if (state == 2) {
-      all_blinking();
-    } else if (state == 3) {
-      bouncing();
-    } else if (state == 4) {
-      binary();
+  if (mode == 0) {
+      all_off();
+    } else if (mode == 1) {
+      all_on(brightness);
+    } else if (mode == 2) {
+      all_blinking(brightness);
+    } else if (mode == 3) {
+      bouncing(brightness);
+    } else if (mode == 4) {
+      binary(brightness);
     }
     
  delay(50);
+ 
 }
 
-// FUNCTIONS
 
-void all_on() {
- int potValue = analogRead(pot);
- int brightness = map(potValue, 0, 1023, 0, 255);
- analogWrite(red, brightness);
- analogWrite(green, brightness);
- analogWrite(blue, brightness);
- analogWrite(yellow, brightness);
+// ------------- FUNCTIONS ------------- //
+
+
+void all_on(int brightness) { 
+ 
+  // Turn all LEDs on
+  analogWrite(RED_LED, brightness);
+  analogWrite(GREEN_LED, brightness);
+  analogWrite(BLUE_LED, brightness);
+  analogWrite(YELLOW_LED, brightness);
+ 
 }
+
 
 void all_off() {
-  digitalWrite(red,LOW);
-  digitalWrite(yellow,LOW);
-  digitalWrite(blue,LOW);
-  digitalWrite(green,LOW);
+  
+  // Turn all LEDs off
+  digitalWrite(RED_LED,LOW);
+  digitalWrite(YELLOW_LED,LOW);
+  digitalWrite(BLUE_LED,LOW);
+  digitalWrite(GREEN_LED,LOW);
+  
 }
 
 
-void all_blinking() {
-
-  int potValue = analogRead(pot);
-  int brightness = map(potValue, 0, 1023, 1, 255); 
+void all_blinking(int brightness) {
  
   uint32_t t;                         
+  t = millis();    
 
-  t = millis();                      
-  if (t >= blink_time + BLINK_INTERVAL) { // If BLINK_INTERVAL milliseconds have elapsed since blink_time,
+  int speed = 250;
+  
+  if (t >= blink_time + speed) {
+    // Switch states (1: on, 0: off)
     if (ledstate == 1) {
       ledstate = 0;
     } else {
@@ -110,15 +120,19 @@ void all_blinking() {
     }
 
     if (ledstate == 1) {
-      analogWrite(red, brightness);
-      analogWrite(yellow, brightness);
-      analogWrite(green, brightness);
-      analogWrite(blue, brightness);
+      
+      analogWrite(RED_LED, brightness);
+      analogWrite(YELLOW_LED, brightness);
+      analogWrite(GREEN_LED, brightness);
+      analogWrite(BLUE_LED, brightness);
+      
     } else {
-      analogWrite(red, 0);
-      analogWrite(yellow, 0);
-      analogWrite(green, 0);
-      analogWrite(blue, 0);
+      
+      analogWrite(RED_LED, 0);
+      analogWrite(YELLOW_LED, 0);
+      analogWrite(GREEN_LED, 0);
+      analogWrite(BLUE_LED, 0);
+      
     }
     blink_time = t;            
   }
@@ -126,69 +140,86 @@ void all_blinking() {
 }
 
 
-void bouncing() {
+void bouncing(int brightness) {
 
-  int potValue = analogRead(pot);
-  int brightness = map(potValue, 0, 1023, 0, 255);
   int32_t t;                         
-
   t = millis();   
-    if (t >= blink_time + BLINK_INTERVAL) { // If BLINK_INTERVAL milliseconds have elapsed since blink_time,
+
+  int speed = 250;
+  
+  if (t >= blink_time + speed) {
+    
     counter++;
     counter = counter % 6;
     
     if (counter == 0) {
-      analogWrite(red, brightness);
-      analogWrite(yellow, 0);
-      analogWrite(green, 0);
-      analogWrite(blue, 0);
-    } else if (counter == 1 || counter == 5){
-      analogWrite(red, 0);
-      analogWrite(yellow, brightness);
-      analogWrite(green, 0);
-      analogWrite(blue, 0);
+      
+      // Turn on only red light
+      analogWrite(RED_LED, brightness);
+      analogWrite(YELLOW_LED, 0);
+      analogWrite(GREEN_LED, 0);
+      analogWrite(BLUE_LED, 0);
+      
+    } else if (counter == 1 || counter == 5) {
+      
+      // Turn on only yellow light
+      analogWrite(RED_LED, 0);
+      analogWrite(YELLOW_LED, brightness);
+      analogWrite(GREEN_LED, 0);
+      analogWrite(BLUE_LED, 0);
+      
     } else if (counter == 2 || counter == 4) {
-      analogWrite(red, 0);
-      analogWrite(yellow, 0);
-      analogWrite(green, brightness);
-      analogWrite(blue, 0);
+
+      // Turn on only green light
+      analogWrite(RED_LED, 0);
+      analogWrite(YELLOW_LED, 0);
+      analogWrite(GREEN_LED, brightness);
+      analogWrite(BLUE_LED, 0);
+      
     } else if (counter == 3) {
-      analogWrite(red, 0);
-      analogWrite(yellow, 0);
-      analogWrite(green, 0);
-      analogWrite(blue, brightness);
+
+      // Turn on only blue light
+      analogWrite(RED_LED, 0);
+      analogWrite(YELLOW_LED, 0);
+      analogWrite(GREEN_LED, 0);
+      analogWrite(BLUE_LED, brightness);
+      
     } 
     
     blink_time = t;
-    Serial.println(counter);
-    }
+    
+   }
 }
 
 
-void binary(){
-  
-  int speed = 250;
-  int potValue = analogRead(pot);
-  int brightness = map(potValue, 0, 1023, 0, 255);
-  all_off();
-  int32_t t;  
+void binary(int brightness) {
 
+  int32_t t;  
   t = millis();   
-    if (t >= blink_time + speed) { // If BLINK_INTERVAL milliseconds have elapsed since blink_time,
-       if (i <= 15){
-    i++; //We start the counter:
-    if((i % 2) > 0) { analogWrite(red, brightness); 
-      } else { digitalWrite(red, LOW); }
-    if((i % 4) > 1) { analogWrite(yellow, brightness);
-      } else { digitalWrite(yellow, LOW); }
-    if((i % 8) > 3) { analogWrite(green, brightness); 
-      } else { digitalWrite(green, LOW); }
-    if((i % 16) > 7) { analogWrite(blue, brightness); 
-      } else { digitalWrite(blue, LOW); } 
-    } else {
-        i = 0;
-    }
-    blink_time = t;
-    }
+
+  int speed = 250;
+
+  all_off();
+ 
+  if (t >= blink_time + speed) {
+   
+    if (counter <= 15){
+      
+      counter++;
+    
+    if((counter % 2) > 0) {analogWrite(RED_LED, brightness);
+      } else { digitalWrite(RED_LED, LOW); }
+    if((counter % 4) > 1) { analogWrite(YELLOW_LED, brightness);
+      } else { digitalWrite(YELLOW_LED, LOW); }
+    if((counter % 8) > 3) { analogWrite(GREEN_LED, brightness);
+      } else { digitalWrite(GREEN_LED, LOW); }
+    if((counter % 16) > 7) { analogWrite(BLUE_LED, brightness);
+      } else { digitalWrite(BLUE_LED, LOW); } 
+    
+  } else {
+    counter = 0;
+  }
+  blink_time = t;
+  }
 
 }

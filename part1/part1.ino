@@ -1,147 +1,244 @@
 /*
+ * 
  * PIE Mini-Project 1: Bike Light
  * Diana Garcia & Gia-Uyen Tran
+ * Submitted September 13, 2022
+ * 
+ * As required by the assignment guidelines, this program switches 
+ * between a group of 4 LEDs between 5 modes (see functions below) 
+ * when a push button is pressed.
+ * 
+ * Functions:
+ * all_off() - turns all LEDs off
+ * all_on() - turns all LEDs on
+ * all_blinking() - blinks all LEDs on and off in unison
+ * bouncing() - alternates LEDs in consecutive order (by location), 
+ *    then reverse direction
+ * binary() - blinks binary numbers up to 15 as if each LED were a 
+ *    bit in a binary number
+ * 
+ * Hardware Connections:
+ * Yellow LED - Pin 5
+ * Red LED - Pin 6
+ * Button - Pin 8
+ * Blue LED - Pin 10
+ * Green LED - Pin 11
  * 
  */
 
-const uint16_t BLINK_INTERVAL = 500;  // Time interval between toggling LED in milliseconds
-const uint8_t blue = 10;               // LED is connected to D13
-const uint8_t green = 11;
-const uint8_t yellow = 12;
-const uint8_t red = 13;
-int button = 8;
-int i = 0;
-int state = 0;
+
+// Connect components to pins
+const int RED_LED = 6;
+const int YELLOW_LED = 5;
+const int GREEN_LED = 11;
+const int BLUE_LED = 10;  
+const int BUTTON = 8;
+
+// intialize counting variables
+int mode = 0;
 int counter = 0;
 int button_state = 0;
-int previous_state = 0;
+int previous_button = 0;
 int button_count = 0;
+int ledstate = 0;
 
-uint32_t blink_time;                  // Global variable to store the time that LED last changed state
+// Global variable to store the time that LED last changed state
+uint32_t blink_time;
 
-void setup() {
-  Serial.begin(9600); // for testing purposes
-  
-  pinMode(blue, OUTPUT);               // Configure LED pin as a digital output
-  pinMode(green, OUTPUT);
-  pinMode(yellow, OUTPUT);
-  pinMode(red, OUTPUT);
-  pinMode(button, INPUT);
-  
-  digitalWrite(blue, LOW);            // Set LED low initially
-  digitalWrite(green, LOW); 
-  digitalWrite(yellow, LOW); 
-  digitalWrite(red, LOW); 
 
-  blink_time = millis();              // Remember the current value of the millis timer
+void setup() {  
+
+  pinMode(BLUE_LED, OUTPUT);
+  pinMode(GREEN_LED, OUTPUT);
+  pinMode(YELLOW_LED, OUTPUT);
+  pinMode(RED_LED, OUTPUT);
+  pinMode(BUTTON, INPUT);
+
+  // Turn LEDs off initially
+  digitalWrite(BLUE_LED, LOW);
+  digitalWrite(GREEN_LED, LOW); 
+  digitalWrite(YELLOW_LED, LOW); 
+  digitalWrite(RED_LED, LOW); 
+
+  // Remember the current value of the millis timer
+  blink_time = millis();
 }
 
-void loop() {
 
-  button_state = digitalRead(button);
+void loop() {
   
-  if (button_state != previous_state) {
+  // Change mode when button is pressed
+  button_state = digitalRead(BUTTON);
+  
+  if (button_state != previous_button) {
     if (button_state == HIGH) {
       button_count++;
-      state = button_count % 5;
-      Serial.print(state);
+      mode = button_count % 5;
     } 
-  }
+  } 
+  previous_button = button_state;
   
-  previous_state = button_state;
-  
-  if (state == 0) {
-    all_off();
-    } else if (state == 1) {
+  if (mode == 0) {
+      all_off();
+    } else if (mode == 1) {
       all_on();
-    } else if (state == 2) {
+    } else if (mode == 2) {
       all_blinking();
-    } else if (state == 3) {
+    } else if (mode == 3) {
       bouncing();
-    } else if (state == 4) {
+    } else if (mode == 4) {
       binary();
     }
     
  delay(50);
+ 
 }
 
-// FUNCTIONS
 
-void all_on() {
-  digitalWrite(red,HIGH);
-  digitalWrite(yellow,HIGH);
-  digitalWrite(blue,HIGH);
-  digitalWrite(green,HIGH);
+// ------------- FUNCTIONS ------------- //
+
+
+void all_on() { 
+ 
+  // Turn all LEDs on
+  digitalWrite(RED_LED, HIGH);
+  digitalWrite(GREEN_LED, HIGH);
+  digitalWrite(BLUE_LED, HIGH);
+  digitalWrite(YELLOW_LED, HIGH);
+ 
 }
+
 
 void all_off() {
-  digitalWrite(red,LOW);
-  digitalWrite(yellow,LOW);
-  digitalWrite(blue,LOW);
-  digitalWrite(green,LOW);
+  
+  // Turn all LEDs off
+  digitalWrite(RED_LED,LOW);
+  digitalWrite(YELLOW_LED,LOW);
+  digitalWrite(BLUE_LED,LOW);
+  digitalWrite(GREEN_LED,LOW);
+  
 }
 
 
-void all_blinking() { // from Brad's tutorial. may want to refactor
-
+void all_blinking() {
+ 
   uint32_t t;                         
+  t = millis();    
 
-  t = millis();                       
-  if (t >= blink_time + BLINK_INTERVAL) { // If BLINK_INTERVAL milliseconds have elapsed since blink_time,
-    digitalWrite(blue, !digitalRead(blue));
-    digitalWrite(green, !digitalRead(green));
-    digitalWrite(yellow, !digitalRead(yellow));
-    digitalWrite(red, !digitalRead(red));
+  int speed = 250;
+  
+  if (t >= blink_time + speed) {
+    // Switch states (1: on, 0: off)
+    if (ledstate == 1) {
+      ledstate = 0;
+    } else {
+      ledstate = 1;
+    }
+
+    if (ledstate == 1) {
+      
+      // Turn on all LEDs
+      digitalWrite(RED_LED, HIGH);
+      digitalWrite(YELLOW_LED, HIGH);
+      digitalWrite(GREEN_LED, HIGH);
+      digitalWrite(BLUE_LED, HIGH);
+      
+    } else {
+      
+      // Turn off all LEDs
+      digitalWrite(RED_LED,LOW);
+      digitalWrite(YELLOW_LED,LOW);
+      digitalWrite(BLUE_LED,LOW);
+      digitalWrite(GREEN_LED,LOW);
+      
+    }
     blink_time = t;            
   }
+ 
 }
 
 
 void bouncing() {
 
+  int32_t t;                         
+  t = millis();   
+
+  int speed = 250;
+  
+  if (t >= blink_time + speed) {
+    
+    counter++;
+    counter = counter % 6;
+    
     if (counter == 0) {
-      digitalWrite(red, HIGH);
-      delay(250);
-      digitalWrite(red, LOW);
-    } else if (counter == 1 || counter == 5){
-      digitalWrite(yellow, HIGH);
-      delay(250);
-      digitalWrite(yellow, LOW);
+      
+      // Turn on only red light
+      digitalWrite(RED_LED, HIGH);
+      digitalWrite(GREEN_LED, LOW);
+      digitalWrite(BLUE_LED, LOW);
+      digitalWrite(YELLOW_LED, LOW);
+      
+    } else if (counter == 1 || counter == 5) {
+      
+      // Turn on only yellow light
+      digitalWrite(RED_LED, LOW);
+      digitalWrite(YELLOW_LED, HIGH);
+      digitalWrite(GREEN_LED, LOW);
+      digitalWrite(BLUE_LED, LOW);
+      
     } else if (counter == 2 || counter == 4) {
-      digitalWrite(green, HIGH);
-      delay(250);
-      digitalWrite(green, LOW);
+
+      // Turn on only green light
+      digitalWrite(RED_LED, LOW);
+      digitalWrite(YELLOW_LED, LOW);
+      digitalWrite(GREEN_LED, HIGH);
+      digitalWrite(BLUE_LED, LOW);
+      
     } else if (counter == 3) {
-      digitalWrite(blue, HIGH);
-      delay(250);
-      digitalWrite(blue, LOW);
+
+      // Turn on only blue light
+      digitalWrite(RED_LED, LOW);
+      digitalWrite(YELLOW_LED, LOW);
+      digitalWrite(GREEN_LED, LOW);
+      digitalWrite(BLUE_LED, HIGH);
+      
     } 
     
-  counter++;
-  counter = counter % 6;
+    blink_time = t;
+    
+   }
 }
 
 
-void binary(){
-  
+void binary() {
+
+  int32_t t;  
+  t = millis();   
+
   int speed = 250;
-  
+
   all_off();
-  delay(speed);
-  
-  if (i <= 15){
-    i++; //We start the counter:
-    if((i % 2) > 0) { digitalWrite(red, HIGH); 
-      } else { digitalWrite(red, LOW); }
-    if((i % 4) > 1) { digitalWrite(yellow, HIGH); 
-      } else { digitalWrite(yellow, LOW); }
-    if((i % 8) > 3) { digitalWrite(green, HIGH); 
-      } else { digitalWrite(green, LOW); }
-    if((i % 16) > 7) { digitalWrite(blue, HIGH); 
-      } else { digitalWrite(blue, LOW); } 
+ 
+  if (t >= blink_time + speed) {
+   
+    if (counter <= 15){
+      
+      counter++;
+    
+      if((counter % 2) > 0) {digitalWrite(RED_LED, HIGH);
+        } else { digitalWrite(RED_LED, LOW); }
+      if((counter % 4) > 1) { digitalWrite(YELLOW_LED, HIGH);
+        } else { digitalWrite(YELLOW_LED, LOW); }
+      if((counter % 8) > 3) { digitalWrite(GREEN_LED, HIGH);
+        } else { digitalWrite(GREEN_LED, LOW); }
+      if((counter % 16) > 7) { digitalWrite(BLUE_LED, HIGH);
+        } else { digitalWrite(BLUE_LED, LOW); } 
+    
     } else {
-        i = 0;
+      counter = 0;
     }
     
-  delay(speed);
+    blink_time = t;
+  }
+
 }

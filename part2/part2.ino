@@ -26,7 +26,7 @@ uint32_t blink_time;
 
 
 void setup() {  
-  
+
   pinMode(BLUE_LED, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
   pinMode(YELLOW_LED, OUTPUT);
@@ -121,6 +121,7 @@ void all_blinking(int brightness) {
 
     if (ledstate == 1) {
       
+      // Turn on all LEDs
       analogWrite(RED_LED, brightness);
       analogWrite(YELLOW_LED, brightness);
       analogWrite(GREEN_LED, brightness);
@@ -128,6 +129,7 @@ void all_blinking(int brightness) {
       
     } else {
       
+      // Turn off all LEDs
       analogWrite(RED_LED, 0);
       analogWrite(YELLOW_LED, 0);
       analogWrite(GREEN_LED, 0);
@@ -207,19 +209,20 @@ void binary(int brightness) {
       
       counter++;
     
-    if((counter % 2) > 0) {analogWrite(RED_LED, brightness);
-      } else { digitalWrite(RED_LED, LOW); }
-    if((counter % 4) > 1) { analogWrite(YELLOW_LED, brightness);
-      } else { digitalWrite(YELLOW_LED, LOW); }
-    if((counter % 8) > 3) { analogWrite(GREEN_LED, brightness);
-      } else { digitalWrite(GREEN_LED, LOW); }
-    if((counter % 16) > 7) { analogWrite(BLUE_LED, brightness);
-      } else { digitalWrite(BLUE_LED, LOW); } 
+      if((counter % 2) > 0) {analogWrite(RED_LED, brightness);
+        } else { digitalWrite(RED_LED, LOW); }
+      if((counter % 4) > 1) { analogWrite(YELLOW_LED, brightness);
+        } else { digitalWrite(YELLOW_LED, LOW); }
+      if((counter % 8) > 3) { analogWrite(GREEN_LED, brightness);
+        } else { digitalWrite(GREEN_LED, LOW); }
+      if((counter % 16) > 7) { analogWrite(BLUE_LED, brightness);
+        } else { digitalWrite(BLUE_LED, LOW); } 
     
-  } else {
-    counter = 0;
-  }
-  blink_time = t;
+    } else {
+      counter = 0;
+    }
+    
+    blink_time = t;
   }
 
 }

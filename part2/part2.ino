@@ -1,6 +1,30 @@
 /*
+ * 
  * PIE Mini-Project 1: Bike Light
  * Diana Garcia & Gia-Uyen Tran
+ * Submitted September 13, 2022
+ * 
+ * As required by the assignment guidelines, this program switches 
+ * between a group of 4 LEDs between 5 modes (see functions below) 
+ * when a push button is pressed. The brightness of the LEDs can 
+ * be adjusted with a potentiometer. 
+ * 
+ * Functions:
+ * all_off() - turns all LEDs off
+ * all_on() - turns all LEDs on
+ * all_blinking() - blinks all LEDs on and off in unison
+ * bouncing() - alternates LEDs in consecutive order (by location), 
+ *    then reverse direction
+ * binary() - blinks binary numbers up to 15 as if each LED were a 
+ *    bit in a binary number
+ * 
+ * Hardware Connections:
+ * Yellow LED - Pin 5
+ * Red LED - Pin 6
+ * Button - Pin 8
+ * Blue LED - Pin 10
+ * Green LED - Pin 11
+ * Potentiometer - Pin A1
  * 
  */
 
